@@ -11,24 +11,24 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect Database
 connectDB();
 
-// Middleware
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000", credentials: true }));
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
-app.get("/api/health", (_req, res) => {
+app.get("/api/health", (_req: express.Request, res: express.Response) => {
   res.json({ success: true, message: "Smart Leads API is running!" });
 });
 
-// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/leads", leadRoutes);
 
-// Error handling
 app.use(notFound);
 app.use(errorHandler);
 
