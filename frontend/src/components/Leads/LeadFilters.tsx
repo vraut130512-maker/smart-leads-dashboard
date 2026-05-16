@@ -12,70 +12,64 @@ interface LeadFiltersProps {
 const LeadFiltersComponent: React.FC<LeadFiltersProps> = ({
   filters, onFilterChange, onSearchChange, searchValue,
 }) => {
-  const selectClass = "border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white";
+  const selectStyle: React.CSSProperties = {
+    border: "0.5px solid var(--color-border-tertiary)",
+    borderRadius: 8, padding: "6px 10px", fontSize: 13,
+    background: "var(--color-background-primary)",
+    color: "var(--color-text-primary)", outline: "none"
+  };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4">
-      <div className="flex flex-wrap gap-3 items-center">
-        <div className="flex items-center gap-2 text-gray-600 font-medium text-sm">
-          <SlidersHorizontal size={16} />
-          Filters
-        </div>
+    <div style={{
+      background: "var(--color-background-primary)",
+      border: "0.5px solid var(--color-border-tertiary)",
+      borderRadius: 12, padding: "10px 16px",
+      display: "flex", alignItems: "center",
+      gap: 10, flexWrap: "wrap"
+    }}>
+      <span style={{ fontSize: 13, color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: 5 }}>
+        <SlidersHorizontal size={14} /> Filters
+      </span>
 
-        {/* Search */}
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            value={searchValue}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Status filter */}
-        <select
-          value={filters.status || ""}
-          onChange={(e) => onFilterChange({ status: (e.target.value as LeadStatus) || undefined })}
-          className={selectClass}
-        >
-          <option value="">All Status</option>
-          {["New", "Contacted", "Qualified", "Lost"].map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-
-        {/* Source filter */}
-        <select
-          value={filters.source || ""}
-          onChange={(e) => onFilterChange({ source: (e.target.value as LeadSource) || undefined })}
-          className={selectClass}
-        >
-          <option value="">All Sources</option>
-          {["Website", "Instagram", "Referral"].map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-
-        {/* Sort */}
-        <select
-          value={filters.sort || "latest"}
-          onChange={(e) => onFilterChange({ sort: e.target.value as "latest" | "oldest" })}
-          className={selectClass}
-        >
-          <option value="latest">Latest First</option>
-          <option value="oldest">Oldest First</option>
-        </select>
-
-        {/* Clear filters */}
-        <button
-          onClick={() => { onFilterChange({ status: undefined, source: undefined, sort: "latest" }); onSearchChange(""); }}
-          className="text-sm text-gray-500 hover:text-red-500 transition-colors"
-        >
-          Clear
-        </button>
+      <div style={{
+        flex: 1, minWidth: 200, display: "flex", alignItems: "center", gap: 8,
+        border: "0.5px solid var(--color-border-tertiary)",
+        borderRadius: 8, padding: "6px 12px",
+        background: "var(--color-background-secondary)"
+      }}>
+        <Search size={14} style={{ color: "var(--color-text-secondary)", flexShrink: 0 }} />
+        <input
+          type="text" placeholder="Search by name or email..."
+          value={searchValue} onChange={(e) => onSearchChange(e.target.value)}
+          style={{
+            border: "none", background: "transparent", fontSize: 13,
+            color: "var(--color-text-primary)", outline: "none", width: "100%"
+          }}
+        />
       </div>
+
+      <select value={filters.status || ""} style={selectStyle}
+        onChange={(e) => onFilterChange({ status: (e.target.value as LeadStatus) || undefined })}>
+        <option value="">All Status</option>
+        {["New", "Contacted", "Qualified", "Lost"].map(s => <option key={s} value={s}>{s}</option>)}
+      </select>
+
+      <select value={filters.source || ""} style={selectStyle}
+        onChange={(e) => onFilterChange({ source: (e.target.value as LeadSource) || undefined })}>
+        <option value="">All Sources</option>
+        {["Website", "Instagram", "Referral"].map(s => <option key={s} value={s}>{s}</option>)}
+      </select>
+
+      <select value={filters.sort || "latest"} style={selectStyle}
+        onChange={(e) => onFilterChange({ sort: e.target.value as "latest" | "oldest" })}>
+        <option value="latest">Latest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+
+      <button onClick={() => { onFilterChange({ status: undefined, source: undefined, sort: "latest" }); onSearchChange(""); }}
+        style={{ fontSize: 13, color: "#EF4444", background: "none", border: "none", cursor: "pointer" }}>
+        Clear
+      </button>
     </div>
   );
 };

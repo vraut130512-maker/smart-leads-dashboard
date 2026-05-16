@@ -1,35 +1,58 @@
 import React from "react";
-import { LogOut, User, Zap } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="bg-blue-600 p-2 rounded-lg">
-            <Zap size={20} className="text-white" />
-          </div>
-          <span className="text-xl font-bold text-gray-900">Smart Leads</span>
+    <nav style={{
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "0 24px", height: 56,
+      background: "var(--color-background-primary)",
+      borderBottom: "0.5px solid var(--color-border-tertiary)",
+      position: "sticky", top: 0, zIndex: 10
+    }}>
+      {/* Left - Logo */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{
+          width: 32, height: 32, borderRadius: 9,
+          background: "linear-gradient(135deg,#6366F1,#8B5CF6)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 16, color: "white"
+        }}>⚡</div>
+        <span style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text-primary)" }}>
+          Smart<span style={{ color: "#6366F1" }}>Leads</span>
+        </span>
+      </div>
+
+      {/* Right - User */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>
+          {user?.name}
+        </span>
+        <span style={{
+          background: "#EEF2FF", color: "#4338CA",
+          fontSize: 11, fontWeight: 500,
+          borderRadius: 20, padding: "3px 10px"
+        }}>{user?.role}</span>
+        <div style={{
+          width: 30, height: 30, borderRadius: "50%",
+          background: "linear-gradient(135deg,#6366F1,#8B5CF6)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 11, fontWeight: 500, color: "white"
+        }}>
+          {user?.name?.slice(0, 2).toUpperCase()}
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <User size={16} />
-            <span>{user?.name}</span>
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full capitalize">
-              {user?.role}
-            </span>
-          </div>
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-600 transition-colors"
-          >
-            <LogOut size={16} />
-            Logout
-          </button>
-        </div>
+        <button onClick={logout} style={{
+          display: "flex", alignItems: "center", gap: 5,
+          fontSize: 13, color: "var(--color-text-secondary)",
+          border: "0.5px solid var(--color-border-tertiary)",
+          borderRadius: 8, padding: "5px 10px",
+          background: "none", cursor: "pointer"
+        }}>
+          <LogOut size={14} /> Logout
+        </button>
       </div>
     </nav>
   );

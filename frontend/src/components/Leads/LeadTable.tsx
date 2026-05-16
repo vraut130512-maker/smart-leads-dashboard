@@ -1,7 +1,5 @@
 import React from "react";
 import { Edit2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
-import Badge from "../UI/Badge";
-import Spinner from "../UI/Spinner";
 import { Lead, Pagination } from "../../types";
 import { useAuth } from "../../context/AuthContext";
 
@@ -14,6 +12,27 @@ interface LeadTableProps {
   onPageChange: (page: number) => void;
 }
 
+const statusConfig: Record<string, { bg: string; color: string; dot: string }> = {
+  New:       { bg: "#EEF2FF", color: "#4338CA", dot: "#6366F1" },
+  Contacted: { bg: "#FFFBEB", color: "#B45309", dot: "#F59E0B" },
+  Qualified: { bg: "#ECFDF5", color: "#065F46", dot: "#10B981" },
+  Lost:      { bg: "#FEF2F2", color: "#991B1B", dot: "#EF4444" },
+};
+
+const sourceConfig: Record<string, { bg: string; color: string }> = {
+  Website:   { bg: "#F3E8FF", color: "#6B21A8" },
+  Instagram: { bg: "#FDF2F8", color: "#9D174D" },
+  Referral:  { bg: "#FFF7ED", color: "#92400E" },
+};
+
+const avatarColors = [
+  { bg: "#EEF2FF", color: "#4338CA" },
+  { bg: "#ECFDF5", color: "#065F46" },
+  { bg: "#FFFBEB", color: "#92400E" },
+  { bg: "#FDF2F8", color: "#9D174D" },
+  { bg: "#EFF6FF", color: "#1D4ED8" },
+];
+
 const LeadTable: React.FC<LeadTableProps> = ({
   leads, isLoading, pagination, onEdit, onDelete, onPageChange,
 }) => {
@@ -21,104 +40,197 @@ const LeadTable: React.FC<LeadTableProps> = ({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-12">
-        <Spinner size="lg" />
-        <p className="text-center text-gray-500 mt-4">Loading leads...</p>
+      <div style={{
+        background: "var(--color-background-primary)",
+        border: "0.5px solid var(--color-border-tertiary)",
+        borderRadius: 12, padding: 48, textAlign: "center"
+      }}>
+        <div style={{
+          width: 36, height: 36, border: "3px solid #6366F1",
+          borderTopColor: "transparent", borderRadius: "50%",
+          animation: "spin 0.8s linear infinite", margin: "0 auto 12px"
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        <p style={{ color: "var(--color-text-secondary)", fontSize: 14 }}>Loading leads...</p>
       </div>
     );
   }
 
   if (!leads.length) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-        <div className="text-6xl mb-4">📭</div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">No leads found</h3>
-        <p className="text-gray-500 text-sm">Try adjusting your filters or create a new lead.</p>
+      <div style={{
+        background: "var(--color-background-primary)",
+        border: "0.5px solid var(--color-border-tertiary)",
+        borderRadius: 12, padding: 48, textAlign: "center"
+      }}>
+        <div style={{ fontSize: 48, marginBottom: 12 }}>📭</div>
+        <h3 style={{ fontSize: 16, fontWeight: 500, color: "var(--color-text-primary)", marginBottom: 6 }}>
+          No leads found
+        </h3>
+        <p style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>
+          Try adjusting your filters or create a new lead.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              {["Name", "Email", "Status", "Source", "Created", "Actions"].map((h) => (
-                <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {h}
-                </th>
+    <div style={{
+      background: "var(--color-background-primary)",
+      border: "0.5px solid var(--color-border-tertiary)",
+      borderRadius: 12, overflow: "hidden"
+    }}>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ background: "var(--color-background-secondary)" }}>
+              {["Lead", "Status", "Source", "Date", "Actions"].map((h) => (
+                <th key={h} style={{
+                  padding: "9px 16px", textAlign: "left",
+                  fontSize: 10, fontWeight: 500,
+                  color: "var(--color-text-secondary)",
+                  textTransform: "uppercase", letterSpacing: "0.06em"
+                }}>{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {leads.map((lead) => (
-              <tr key={lead._id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{lead.name}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-600">{lead.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge value={lead.status} />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge value={lead.source} />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(lead.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => onEdit(lead)}
-                      className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Edit"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    {user?.role === "admin" && (
-                      <button
-                        onClick={() => onDelete(lead._id)}
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
+          <tbody>
+            {leads.map((lead, i) => {
+              const av = avatarColors[i % avatarColors.length];
+              const sc = statusConfig[lead.status] || statusConfig.New;
+              const src = sourceConfig[lead.source] || sourceConfig.Website;
+              const initials = lead.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+
+              return (
+                <tr key={lead._id} style={{ borderTop: "0.5px solid var(--color-border-tertiary)" }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "var(--color-background-secondary)")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                >
+                  {/* Lead Name + Avatar */}
+                  <td style={{ padding: "11px 16px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{
+                        width: 30, height: 30, borderRadius: "50%",
+                        background: av.bg, color: av.color,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 11, fontWeight: 500, flexShrink: 0
+                      }}>{initials}</div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>
+                          {lead.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--color-text-secondary)" }}>
+                          {lead.email}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Status Badge */}
+                  <td style={{ padding: "11px 16px" }}>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 5,
+                      padding: "2px 9px", borderRadius: 20,
+                      fontSize: 11, fontWeight: 500,
+                      background: sc.bg, color: sc.color
+                    }}>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: sc.dot, display: "inline-block" }} />
+                      {lead.status}
+                    </span>
+                  </td>
+
+                  {/* Source Badge */}
+                  <td style={{ padding: "11px 16px" }}>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center",
+                      padding: "2px 9px", borderRadius: 20,
+                      fontSize: 11, fontWeight: 500,
+                      background: src.bg, color: src.color
+                    }}>{lead.source}</span>
+                  </td>
+
+                  {/* Date */}
+                  <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--color-text-secondary)" }}>
+                    {new Date(lead.createdAt).toLocaleDateString("en-IN", {
+                      day: "2-digit", month: "short", year: "numeric"
+                    })}
+                  </td>
+
+                  {/* Actions */}
+                  <td style={{ padding: "11px 16px" }}>
+                    <div style={{ display: "flex", gap: 5 }}>
+                      <button onClick={() => onEdit(lead)} style={{
+                        width: 26, height: 26, borderRadius: 6,
+                        border: "0.5px solid var(--color-border-tertiary)",
+                        background: "none", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: "#6366F1"
+                      }}>
+                        <Edit2 size={13} />
                       </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {user?.role === "admin" && (
+                        <button onClick={() => onDelete(lead._id)} style={{
+                          width: 26, height: 26, borderRadius: 6,
+                          border: "0.5px solid var(--color-border-tertiary)",
+                          background: "none", cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          color: "#DC2626"
+                        }}>
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "10px 16px", borderTop: "0.5px solid var(--color-border-tertiary)"
+        }}>
+          <span style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>
             Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
             {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} leads
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onPageChange(pagination.page - 1)}
+          </span>
+          <div style={{ display: "flex", gap: 4 }}>
+            <button onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft size={16} />
+              style={{
+                width: 28, height: 28, borderRadius: 6,
+                border: "0.5px solid var(--color-border-tertiary)",
+                background: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                opacity: pagination.page === 1 ? 0.4 : 1
+              }}>
+              <ChevronLeft size={14} />
             </button>
-            <span className="text-sm text-gray-700 px-3">
-              Page {pagination.page} of {pagination.totalPages}
-            </span>
-            <button
-              onClick={() => onPageChange(pagination.page + 1)}
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === pagination.totalPages || Math.abs(p - pagination.page) <= 1)
+              .map(p => (
+                <button key={p} onClick={() => onPageChange(p)} style={{
+                  width: 28, height: 28, borderRadius: 6, fontSize: 12, cursor: "pointer",
+                  border: p === pagination.page ? "none" : "0.5px solid var(--color-border-tertiary)",
+                  background: p === pagination.page ? "#6366F1" : "none",
+                  color: p === pagination.page ? "white" : "var(--color-text-primary)",
+                  display: "flex", alignItems: "center", justifyContent: "center"
+                }}>{p}</button>
+              ))}
+            <button onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight size={16} />
+              style={{
+                width: 28, height: 28, borderRadius: 6,
+                border: "0.5px solid var(--color-border-tertiary)",
+                background: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                opacity: pagination.page === pagination.totalPages ? 0.4 : 1
+              }}>
+              <ChevronRight size={14} />
             </button>
           </div>
         </div>
